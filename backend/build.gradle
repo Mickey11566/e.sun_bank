@@ -33,6 +33,8 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-validation'
 	// openapi 線上文件  加完之後執行專案即可打開 http://localhost:8080/swagger-ui/index.html
 	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.14'
+	// Source: https://mvnrepository.com/artifact/org.owasp.encoder/encoder
+	implementation 'org.owasp.encoder:encoder:1.3.1'
 }
 
 tasks.named('test') {

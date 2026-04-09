@@ -1,5 +1,6 @@
 package com.bank.backend.controller;
 
+import com.bank.backend.dto.PreferenceDto;
 import com.bank.backend.request.PreferenceReq;
 import com.bank.backend.service.PreferenceService;
 import jakarta.validation.Valid;
@@ -8,7 +9,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  * 使用者偏好紀錄控制器
@@ -25,7 +25,7 @@ public class PreferenceController {
      * 取得特定帳號的所有偏好設定
      */
     @GetMapping
-    public ResponseEntity<List<Map<String, Object>>> getAllPreferences(@RequestParam("account") String account) {
+    public ResponseEntity<List<PreferenceDto>> getAllPreferences(@RequestParam("account") String account) {
         return ResponseEntity.ok(preferenceService.getAllPreferences(account));
     }
 

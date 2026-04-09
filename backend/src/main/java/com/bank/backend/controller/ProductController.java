@@ -1,12 +1,13 @@
 package com.bank.backend.controller;
 
+import com.bank.backend.dto.ProductDto;
 import com.bank.backend.service.PreferenceService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  * 金融商品主檔控制器
@@ -24,7 +25,7 @@ public class ProductController {
      * 取得所有商品清單
      */
     @GetMapping
-    public ResponseEntity<List<Map<String, Object>>> getAllProducts() {
+    public ResponseEntity<List<ProductDto>> getAllProducts() {
         return ResponseEntity.ok(preferenceService.getAllProducts());
     }
 
@@ -32,11 +33,12 @@ public class ProductController {
      * 新增商品
      */
     @PostMapping
-    public ResponseEntity<String> addProduct(@RequestBody Map<String, Object> body) {
-        String name = (String) body.get("product_name");
-        int price = (Integer) body.get("price");
-        float feeRate = ((Number) body.get("fee_rate")).floatValue();
-        preferenceService.addProduct(name, price, feeRate);
+    public ResponseEntity<String> addProduct(@Valid @RequestBody ProductDto productDto) {
+        preferenceService.addProduct(
+            productDto.getProductName(), 
+            productDto.getPrice(), 
+            productDto.getFeeRate()
+        );
         return ResponseEntity.ok("新增產品成功");
     }
 
@@ -44,12 +46,13 @@ public class ProductController {
      * 更新商品
      */
     @PutMapping
-    public ResponseEntity<String> updateProduct(@RequestBody Map<String, Object> body) {
-        int no = (Integer) body.get("no");
-        String name = (String) body.get("product_name");
-        int price = (Integer) body.get("price");
-        float feeRate = ((Number) body.get("fee_rate")).floatValue();
-        preferenceService.updateProduct(no, name, price, feeRate);
+    public ResponseEntity<String> updateProduct(@Valid @RequestBody ProductDto productDto) {
+        preferenceService.updateProduct(
+            productDto.getNo(), 
+            productDto.getProductName(), 
+            productDto.getPrice(), 
+            productDto.getFeeRate()
+        );
         return ResponseEntity.ok("產品更新成功");
     }
 

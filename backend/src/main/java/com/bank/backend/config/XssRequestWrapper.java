@@ -13,7 +13,7 @@ public class XssRequestWrapper extends HttpServletRequestWrapper {
 	}
 
 	/**
-	 * 攔截取得多個參數值（例如 checkbox、multi-select）
+	 * 攔截多個參數
 	 */
 	@Override
 	public String[] getParameterValues(String parameter) {
@@ -24,10 +24,9 @@ public class XssRequestWrapper extends HttpServletRequestWrapper {
 		}
 
 		// 對每一個值進行XSS清洗
-		int count = values.length;
-		String[] encodedValues = new String[count];
+		String[] encodedValues = new String[values.length];
 
-		for (int i = 0; i < count; i++) {
+		for (int i = 0; i < values.length; i++) {
 			encodedValues[i] = sanitize(values[i]);
 		}
 
@@ -35,7 +34,7 @@ public class XssRequestWrapper extends HttpServletRequestWrapper {
 	}
 
 	/**
-	 * 攔截取得單一參數值（例如表單欄位）
+	 * 攔截單一參數
 	 */
 	@Override
 	public String getParameter(String parameter) {
@@ -67,26 +66,19 @@ public class XssRequestWrapper extends HttpServletRequestWrapper {
 	 * XSS 清洗方法： 將可能造成XSS攻擊的字元或語法轉換或移除
 	 */
 	private String sanitize(String value) {
-		if (value != null) {
-
-			// < > 轉成HTML Entity，避免被當作HTML標籤執行
-			value = value.replaceAll("<", "&lt;").replaceAll(">", "&gt;");
-
-			// 防止JavaScript函數呼叫 ( )
-			value = value.replaceAll("\\(", "&#40;").replaceAll("\\)", "&#41;");
-
-			// 防止字串注入
-			value = value.replaceAll("'", "&#39;");
-
-			// 移除eval(...)
-			value = value.replaceAll("eval\\((.*)\\)", "");
-
-			// 防止javascript:URL攻擊
-			value = value.replaceAll("[\\\"\\\'][\\s]*javascript:(.*)[\\\"\\\']", "\"\"");
-
-			// 移除script關鍵字
-			value = value.replaceAll("script", "");
+		if (value == null) {
+			return null;
 		}
+
+		/*
+		 * 移除所有script標籤及其包含的程式碼內容 (?i) 代表不區分大小寫，.*?
+		 * 為非全碼比對，確保精準配對到最近的</script>結束標籤，避免誤刪正常內容
+		 */
+		value = value.replaceAll("(?i)<script.*?>.*?</script>", "");
+
+		// 移除字串中出現的javascript:
+		// 防止攻擊者利用超連結（href="javascript:..."）或圖片（src="javascript:..."）等屬性
+		value = value.replaceAll("(?i)javascript:", "");
 
 		return value;
 	}

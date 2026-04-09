@@ -1,11 +1,12 @@
 package com.bank.backend.dao;
 
+import com.bank.backend.dto.ProductDto;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
-import java.util.Map;
 
 @Repository
 public class ProductDao {
@@ -16,22 +17,24 @@ public class ProductDao {
     /** 
 	 * 取得所有產品
 	 */
-    public List<Map<String, Object>> getAllProducts() {
-        return jdbcTemplate.queryForList("CALL sp_get_all_products()");
+    public List<ProductDto> getAllProducts() {
+        return jdbcTemplate.query("CALL sp_get_all_products()", new BeanPropertyRowMapper<>(ProductDto.class));
     }
 
     /** 
 	 * 取得單一產品
 	 */
-    public Map<String, Object> getProduct(int no) {
-        return jdbcTemplate.queryForMap("CALL sp_get_product(?)", no);
+    public ProductDto getProduct(int no) {
+        return jdbcTemplate.queryForObject("CALL sp_get_product(?)", new BeanPropertyRowMapper<>(ProductDto.class), no);
     }
 
     /** 
 	 * 新增產品
+     * @return 新產生的商品編號 (no)
 	 */
-    public void addProduct(String name, int price, float feeRate) {
+    public int addProduct(String name, int price, float feeRate) {
         jdbcTemplate.update("CALL sp_add_product(?, ?, ?)", name, price, feeRate);
+        return jdbcTemplate.queryForObject("SELECT LAST_INSERT_ID()", Integer.class);
     }
 
     /** 
